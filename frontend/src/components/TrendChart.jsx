@@ -1,47 +1,61 @@
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+    CartesianGrid,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
 
-const TrendChart = ({ data }) => {
+export default function TrendChart({ data, height = 320 }) {
+    if (!data.length) {
+        return <p className="text-sm text-slate-500 dark:text-slate-400">No trend data returned.</p>
+    }
+
     return (
-        <div className="w-full h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                        <linearGradient id="colorSentiment" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis
-                        dataKey="date"
-                        stroke="#94a3b8"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                    />
+        <div className="w-full" style={{ height }}>
+            <ResponsiveContainer>
+                <LineChart
+                    data={data}
+                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.25} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                    <YAxis yAxisId="left" tick={{ fontSize: 12, fill: '#94a3b8' }} />
                     <YAxis
-                        stroke="#94a3b8"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        domain={[0, 100]}
+                        yAxisId="right"
+                        orientation="right"
+                        tick={{ fontSize: 12, fill: '#94a3b8' }}
                     />
                     <Tooltip
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        itemStyle={{ color: '#0ea5e9', fontWeight: 600 }}
+                        contentStyle={{
+                            background: '#0f172a',
+                            border: '1px solid #1e293b',
+                            borderRadius: '0.75rem',
+                            color: '#e2e8f0',
+                        }}
                     />
-                    <Area
+                    <Line
+                        yAxisId="left"
                         type="monotone"
-                        dataKey="sentiment"
-                        stroke="#0ea5e9"
-                        strokeWidth={3}
-                        fillOpacity={1}
-                        fill="url(#colorSentiment)"
+                        dataKey="sentiment_score"
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        dot={false}
+                        name="Sentiment"
                     />
-                </AreaChart>
+                    <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="volume"
+                        stroke="#f59e0b"
+                        strokeWidth={2}
+                        dot={false}
+                        name="Volume"
+                    />
+                </LineChart>
             </ResponsiveContainer>
         </div>
-    );
-};
-
-export default TrendChart;
+    )
+}

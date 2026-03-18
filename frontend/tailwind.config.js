@@ -9,35 +9,39 @@ export default {
         extend: {
             colors: {
                 brand: {
-                    50: '#f5f3ff',
-                    100: '#ede9fe',
-                    200: '#ddd6fe',
-                    300: '#c4b5fd',
-                    400: '#a78bfa',
-                    500: '#8b5cf6', // Primary Brand Color
-                    600: '#7c3aed', // Hover / Active
-                    700: '#6d28d9',
-                    800: '#5b21b6',
-                    900: '#4c1d95',
-                    950: '#2e1065',
+                    50: '#eff6ff',
+                    100: '#dbeafe',
+                    200: '#bfdbfe',
+                    300: '#93c5fd',
+                    400: '#60a5fa',
+                    500: '#3b82f6',
+                    600: '#2563eb',
+                    700: '#1d4ed8',
+                    800: '#1e40af',
+                    900: '#1e3a8a',
+                    950: '#172554',
                 },
-                // Dark mode overrides for deeper blacks/greys
                 dark: {
-                    bg: '#000000',       // Pure Black
-                    surface: '#121212',  // Darker Grey for surface/cards
-                    card: '#121212',     // Darker Grey for cards
-                    cardHover: '#1e1e1e', // Lighter grey for hover
-                    border: '#27272a',   // Zinc-800
+                    bg: '#020617',
+                    surface: '#0f172a',
+                    card: '#111827',
+                    cardHover: '#1f2937',
+                    border: '#334155',
                 },
-                success: '#10b981', // Emerald-500
-                warning: '#f59e0b', // Amber-500
-                error: '#ef4444',   // Red-500
+                tf: {
+                    bg: 'rgb(var(--tf-bg) / <alpha-value>)',
+                    fg: 'rgb(var(--tf-fg) / <alpha-value>)',
+                    muted: 'rgb(var(--tf-muted) / <alpha-value>)',
+                },
+                success: '#059669',
+                warning: '#d97706',
+                error: '#dc2626',
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
+                sans: ['"Space Grotesk"', '"Manrope"', 'ui-sans-serif', 'sans-serif'],
             },
             boxShadow: {
-                'glow': '0 0 20px -5px rgba(139, 92, 246, 0.3)',
+                'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)',
                 'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
             },
             keyframes: {

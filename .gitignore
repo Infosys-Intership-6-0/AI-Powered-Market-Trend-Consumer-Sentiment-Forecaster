@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Pytest / test artifacts
+.pytest_cache/
+pytest-cache-files-*
+
+# Logs and runtime artifacts
+logs/
+*.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+!frontend/.env.example
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Local data artifacts (generated at runtime)
+data/app.db
+data/processed/versions/
+data/processed/model_evaluation_history.csv
+data/processed/preprocessing_audit_log.csv

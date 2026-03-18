@@ -1,144 +1,254 @@
-import { useState, useEffect } from 'react';
-import { getProducts, getProductSentiment } from '../services/api';
-import TrendChart from '../components/TrendChart';
-import { Trophy } from 'lucide-react';
-import clsx from 'clsx';
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowLeftRight } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import KpiCard from '../components/KpiCard'
+import SentimentCard from '../components/SentimentCard'
+import TopNav from '../components/TopNav'
+import TrendCard from '../components/TrendCard'
+import { cn } from '../lib/cn'
+import { getDashboardOverview } from '../lib/api'
+import { BRAND_TABS } from '../lib/brands'
 
-const ComparisonPage = () => {
-    const [products, setProducts] = useState([]);
-    const [productA, setProductA] = useState(null);
-    const [productB, setProductB] = useState(null);
-    const [sentimentA, setSentimentA] = useState([]);
-    const [sentimentB, setSentimentB] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function ComparisonPage({ user, theme, onToggleTheme, onLogout }) {
+    const products = useMemo(() => BRAND_TABS.filter((tab) => tab.id !== 'all'), [])
+    const byId = useMemo(() => new Map(products.map((p) => [p.id, p.label])), [products])
+    const [searchParams] = useSearchParams()
+
+    const [left, setLeft] = useState('neutrogena')
+    const [right, setRight] = useState('cerave')
+    const [rangeDays, setRangeDays] = useState(7)
+
+    const [loading, setLoading] = useState(true)
+    const [leftModel, setLeftModel] = useState(null)
+    const [rightModel, setRightModel] = useState(null)
 
     useEffect(() => {
-        const init = async () => {
-            setLoading(true);
-            const data = await getProducts();
-            setProducts(data);
-            if (data.length >= 2) {
-                setProductA(data[0]);
-                setProductB(data[1]);
+        const leftParam = (searchParams.get('left') || '').trim().toLowerCase()
+        const rightParam = (searchParams.get('right') || '').trim().toLowerCase()
+        const daysParam = (searchParams.get('days') || '').trim()
 
-                const [sA, sB] = await Promise.all([
-                    getProductSentiment(data[0].id),
-                    getProductSentiment(data[1].id)
-                ]);
-                setSentimentA(sA);
-                setSentimentB(sB);
+        if (leftParam && byId.has(leftParam)) {
+            setLeft(leftParam)
+            if (rightParam && byId.has(rightParam) && rightParam !== leftParam) {
+                setRight(rightParam)
+            } else if (rightParam && rightParam === leftParam) {
+                const fallback = Array.from(byId.keys()).find((id) => id !== leftParam) || 'cerave'
+                setRight(fallback)
             }
-            setLoading(false);
-        };
-        init();
-    }, []);
+        } else if (rightParam && byId.has(rightParam)) {
+            setRight(rightParam)
+        }
 
-    const handleProductChange = async (isA, productId) => {
-        const product = products.find(p => p.id === productId);
-        if (isA) setProductA(product);
-        else setProductB(product);
+        const parsedDays = Number.parseInt(daysParam, 10)
+        if ([7, 14, 30].includes(parsedDays)) setRangeDays(parsedDays)
+    }, [byId, searchParams])
 
-        const sentiment = await getProductSentiment(productId);
-        if (isA) setSentimentA(sentiment);
-        else setSentimentB(sentiment);
-    };
+    useEffect(() => {
+        let active = true
+        setLoading(true)
+        Promise.all([
+            getDashboardOverview(left, rangeDays),
+            getDashboardOverview(right, rangeDays),
+        ])
+            .then(([a, b]) => {
+                if (!active) return
+                setLeftModel(a)
+                setRightModel(b)
+            })
+            .catch((err) => {
+                if (!active) return
+                setLeftModel(null)
+                setRightModel(null)
+                toast.error(err?.response?.data?.message || 'Comparison request failed.')
+            })
+            .finally(() => active && setLoading(false))
 
-    if (loading) return <div className="p-8 text-center text-slate-500 dark:text-zinc-500">Loading Comparison...</div>;
+        return () => { active = false }
+    }, [left, right, rangeDays])
 
-    const winner = productA?.current_sentiment > productB?.current_sentiment ? productA : productB;
+    const leftLabel = byId.get(left) || left
+    const rightLabel = byId.get(right) || right
+
+    const trend = useMemo(() => {
+        const a = leftModel?.trend?.line
+        const b = rightModel?.trend?.line
+        if (!a?.data?.length || !b?.data?.length) return null
+        return {
+            mode: 'multi',
+            lines: [
+                {
+                    key: left,
+                    label: leftLabel,
+                    color: '#22d3ee',
+                    data: a.data,
+                },
+                {
+                    key: right,
+                    label: rightLabel,
+                    color: '#a855f7',
+                    data: b.data,
+                },
+            ],
+        }
+    }, [left, leftLabel, leftModel, right, rightLabel, rightModel])
 
     return (
-        <div className="p-6 space-y-6">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Product Comparison</h1>
+        <div className="min-h-screen bg-tf-bg text-tf-fg">
+            <TopNav user={user} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} />
 
-            {/* Selectors */}
-            <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex-1 w-full">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Product A</label>
-                    <select
-                        value={productA?.id}
-                        onChange={(e) => handleProductChange(true, e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-white rounded-lg focus:ring-brand-500 focus:border-brand-500"
-                    >
-                        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                </div>
+            <main className="mx-auto w-full max-w-6xl px-4 pb-12 pt-8">
+                <h1 className="text-3xl font-semibold tracking-tight text-white">Comparison</h1>
+                <p className="mt-2 text-sm text-slate-400">
+                    Side-by-side brand and trend comparisons.
+                </p>
 
-                <div className="text-slate-400 dark:text-zinc-500 font-bold bg-slate-100 dark:bg-zinc-800 rounded-full p-2">VS</div>
-
-                <div className="flex-1 w-full">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Product B</label>
-                    <select
-                        value={productB?.id}
-                        onChange={(e) => handleProductChange(false, e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-white rounded-lg focus:ring-brand-500 focus:border-brand-500"
-                    >
-                        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                </div>
-            </div>
-
-            {/* Winner Banner */}
-            {winner && (
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4 flex items-center gap-4">
-                    <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-full text-emerald-600 dark:text-emerald-400">
-                        <Trophy size={24} />
-                    </div>
-                    <div>
-                        <h3 className="text-emerald-900 dark:text-emerald-200 font-bold">Sentiment Winner: {winner.name}</h3>
-                        <p className="text-emerald-700 dark:text-emerald-400 text-sm">Currently leading with {winner.current_sentiment}% positive sentiment.</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Comparison Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Product A Stats */}
-                <div className="space-y-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 border-l-4 border-l-brand-600 dark:border-l-brand-500">
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{productA?.name}</h2>
-                        <div className="h-[200px]">
-                            <TrendChart data={sentimentA} />
+                <section className="mt-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.03] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur">
+                    <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-end">
+                        <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Product A</p>
+                            <select
+                                value={left}
+                                onChange={(event) => {
+                                    const next = event.target.value
+                                    setLeft(next)
+                                    if (next === right) setRight(left)
+                                }}
+                                className={cn(
+                                    'mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-200',
+                                    'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] transition hover:bg-white/[0.06] hover:text-white',
+                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40',
+                                )}
+                            >
+                                {products.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.label}</option>
+                                ))}
+                            </select>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mt-4">
-                            <div className="bg-slate-50 dark:bg-black/50 p-3 rounded-lg border border-transparent dark:border-zinc-800">
-                                <span className="text-xs text-slate-500 dark:text-zinc-400 uppercase">Score</span>
-                                <div className="text-2xl font-bold text-brand-600 dark:text-brand-400">{productA?.current_sentiment}%</div>
+
+                        <div className="flex flex-col items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setLeft(right)
+                                    setRight(left)
+                                }}
+                                className={cn(
+                                    'inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-slate-200 transition',
+                                    'hover:bg-white/[0.06] hover:text-white',
+                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40',
+                                )}
+                                aria-label="Swap products"
+                            >
+                                <ArrowLeftRight size={18} />
+                            </button>
+                            <div className="flex flex-wrap gap-2">
+                                {[7, 14, 30].map((days) => (
+                                    <button
+                                        key={days}
+                                        type="button"
+                                        onClick={() => setRangeDays(days)}
+                                        className={cn(
+                                            'rounded-full px-3 py-1 text-[11px] font-semibold transition',
+                                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40',
+                                            rangeDays === days
+                                                ? 'bg-white/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.10)]'
+                                                : 'border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.06] hover:text-white',
+                                        )}
+                                    >
+                                        {days}d
+                                    </button>
+                                ))}
                             </div>
-                            <div className="bg-slate-50 dark:bg-black/50 p-3 rounded-lg border border-transparent dark:border-zinc-800">
-                                <span className="text-xs text-slate-500 dark:text-zinc-400 uppercase">Growth</span>
-                                <div className={clsx("text-2xl font-bold", productA?.growth > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
-                                    {productA?.growth > 0 ? '+' : ''}{productA?.growth}%
+                        </div>
+
+                        <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Product B</p>
+                            <select
+                                value={right}
+                                onChange={(event) => {
+                                    const next = event.target.value
+                                    setRight(next)
+                                    if (next === left) setLeft(right)
+                                }}
+                                className={cn(
+                                    'mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-200',
+                                    'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] transition hover:bg-white/[0.06] hover:text-white',
+                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40',
+                                )}
+                            >
+                                {products.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                {!trend || !leftModel || !rightModel ? (
+                    <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-slate-400">
+                        {loading ? 'Loading comparison...' : 'No comparison data available yet.'}
+                    </section>
+                ) : (
+                    <>
+                        <section className={cn('mt-6', loading && 'opacity-80')}>
+                            <TrendCard
+                                title="Sentiment Trend Comparison"
+                                subtitle={`${rangeDays}-Day Trailing Overview`}
+                                trend={trend}
+                            />
+                        </section>
+
+                        <section className={cn('mt-6 grid gap-6 lg:grid-cols-2', loading && 'opacity-80')}>
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+                                    <p className="text-sm font-semibold text-white">{leftLabel}</p>
+                                    <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_16px_rgba(34,211,238,0.18)]" />
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Product B Stats */}
-                <div className="space-y-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 border-l-4 border-l-purple-500 dark:border-l-purple-400">
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{productB?.name}</h2>
-                        <div className="h-[200px]">
-                            <TrendChart data={sentimentB} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 mt-4">
-                            <div className="bg-slate-50 dark:bg-black/50 p-3 rounded-lg border border-transparent dark:border-zinc-800">
-                                <span className="text-xs text-slate-500 dark:text-zinc-400 uppercase">Score</span>
-                                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{productB?.current_sentiment}%</div>
-                            </div>
-                            <div className="bg-slate-50 dark:bg-black/50 p-3 rounded-lg border border-transparent dark:border-zinc-800">
-                                <span className="text-xs text-slate-500 dark:text-zinc-400 uppercase">Growth</span>
-                                <div className={clsx("text-2xl font-bold", productB?.growth > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
-                                    {productB?.growth > 0 ? '+' : ''}{productB?.growth}%
+                                <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-1">
+                                    {(leftModel.kpis || []).map((kpi) => (
+                                        <KpiCard
+                                            key={`${left}-${kpi.label}`}
+                                            helper={kpi.helper}
+                                            label={kpi.label}
+                                            value={kpi.value}
+                                            progress={kpi.progress}
+                                            accent={kpi.accent}
+                                        />
+                                    ))}
                                 </div>
+                                <SentimentCard
+                                    sentiment={leftModel.sentiment}
+                                    onViewAll={() => toast(`${leftLabel}: sentiment breakdown`)}
+                                />
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+                                    <p className="text-sm font-semibold text-white">{rightLabel}</p>
+                                    <span className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_16px_rgba(168,85,247,0.18)]" />
+                                </div>
+                                <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-1">
+                                    {(rightModel.kpis || []).map((kpi) => (
+                                        <KpiCard
+                                            key={`${right}-${kpi.label}`}
+                                            helper={kpi.helper}
+                                            label={kpi.label}
+                                            value={kpi.value}
+                                            progress={kpi.progress}
+                                            accent={kpi.accent}
+                                        />
+                                    ))}
+                                </div>
+                                <SentimentCard
+                                    sentiment={rightModel.sentiment}
+                                    onViewAll={() => toast(`${rightLabel}: sentiment breakdown`)}
+                                />
+                            </div>
+                        </section>
+                    </>
+                )}
+            </main>
         </div>
-    );
-};
-
-export default ComparisonPage;
+    )
+}

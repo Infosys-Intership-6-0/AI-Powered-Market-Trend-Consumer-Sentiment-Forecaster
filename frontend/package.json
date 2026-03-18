@@ -2,13 +2,13 @@
     "name": "market-trend-forecaster",
     "private": true,
     "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-        "preview": "vite preview"
-    },
+  "type": "module",
+  "scripts": {
+    "dev": "node ./scripts/run-vite.mjs dev",
+    "build": "node ./scripts/run-vite.mjs build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "node ./scripts/run-vite.mjs preview"
+  },
     "dependencies": {
         "axios": "^1.6.7",
         "clsx": "^2.1.0",
