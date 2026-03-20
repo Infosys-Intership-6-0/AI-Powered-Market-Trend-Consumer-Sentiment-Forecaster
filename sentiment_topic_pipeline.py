@@ -14,7 +14,7 @@ cur = conn.cursor()
 # 2 Load Dataset (small sample)
 # --------------------------------
 
-df = pd.read_csv("sunscreen_backend_ready.csv").head(30)
+df = pd.read_csv("sunscreen_backend_ready.csv")
 
 print("\nDataset Loaded:")
 print(df.head())
@@ -25,12 +25,12 @@ print(df.head())
 
 print("\nLoading BERT sentiment model...")
 
+
 sentiment_model = pipeline(
     "sentiment-analysis",
     model="nlptown/bert-base-multilingual-uncased-sentiment"
 )
 
-print("BERT model loaded successfully!")
 
 # --------------------------------
 # 4 Run Sentiment Analysis
