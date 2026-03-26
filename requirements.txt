@@ -5,3 +5,4 @@ bertopic
 scikit-learn
 faiss-cpu
 sentence-transformers
+requests
