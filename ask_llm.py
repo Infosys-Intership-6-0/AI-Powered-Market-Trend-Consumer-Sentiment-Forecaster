@@ -98,7 +98,14 @@ Question: {question}
 Answer:"""
 
     # --- Generate response ---
-    result = llm(prompt, max_new_tokens=MAX_NEW_TOKENS, do_sample=False)
+    result = llm(
+        prompt,
+        max_new_tokens=250,
+        do_sample=False,
+        temperature=None,  # suppresses generation_config conflict
+        top_p=None,
+        repetition_penalty=1.1  # prevents repetitive rambling
+    )
     answer = result[0]["generated_text"]
 
     print("\n--- Skincare Expert Answer ---")
