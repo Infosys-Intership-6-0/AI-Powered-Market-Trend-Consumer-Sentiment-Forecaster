@@ -3,3 +3,5 @@ transformers
 torch
 bertopic
 scikit-learn
+faiss-cpu
+sentence-transformers

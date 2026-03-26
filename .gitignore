@@ -18,9 +18,14 @@ env/
 # CSV / data (optional)
 *.csv
 
+*.txt
+
 # Logs
 *.log
 
 # OS files
 .DS_Store
 Thumbs.db
+
+*.json
+*.bin

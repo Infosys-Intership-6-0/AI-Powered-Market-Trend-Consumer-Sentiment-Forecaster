@@ -1,89 +1,106 @@
-import sqlite3
+"""
+ask_llm.py  (FAISS + Skincare Expert RAG)
+------------------------------------------
+Uses FAISS semantic search to retrieve relevant context
+from sunscreen reviews + skincare knowledge document,
+then passes it to Phi-3 for answer generation.
+
+Prerequisites:
+  1. Run build_faiss_index.py once to generate:
+       - faiss_index.bin
+       - faiss_chunks.json
+"""
+
+import json
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
-# -------------------------------
-# 1. Connect to Database
-# -------------------------------
-conn = sqlite3.connect("sunscreen_data.db")
-cur = conn.cursor()
+# ----------------------------------------
+# CONFIG
+# ----------------------------------------
+INDEX_PATH = "faiss_index.bin"
+CHUNKS_PATH = "faiss_chunks.json"
+EMBED_MODEL = "all-MiniLM-L6-v2"
+LLM_MODEL = "microsoft/Phi-3-mini-4k-instruct"
+TOP_K = 5          # Number of chunks to retrieve per query
+MAX_NEW_TOKENS = 150
 
-# -------------------------------
-# 2. Load LLM
-# -------------------------------
+# ----------------------------------------
+# 1. Load FAISS index + chunk texts
+# ----------------------------------------
+print("Loading FAISS index...")
+index = faiss.read_index(INDEX_PATH)
+
+with open(CHUNKS_PATH, "r", encoding="utf-8") as f:
+    all_chunks = json.load(f)
+
+print(f"  → Index loaded: {index.ntotal} vectors, {len(all_chunks)} chunks")
+
+# ----------------------------------------
+# 2. Load embedding model
+# ----------------------------------------
+print("Loading embedding model...")
+embedder = SentenceTransformer(EMBED_MODEL)
+
+# ----------------------------------------
+# 3. Load Phi-3 LLM
+# ----------------------------------------
 print("Loading Phi-3 model...")
-
-model_id = "microsoft/Phi-3-mini-4k-instruct"
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(model_id)
-
+tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
+model = AutoModelForCausalLM.from_pretrained(LLM_MODEL)
 llm = pipeline("text-generation", model=model, tokenizer=tokenizer)
-
 print("RAG System Ready!\n")
 
-# -------------------------------
-# 3. Question Loop
-# -------------------------------
-while True:
+# ----------------------------------------
+# 4. Retrieval function
+# ----------------------------------------
+def retrieve(question: str, top_k: int = TOP_K) -> str:
+    """Embed the question and retrieve top-k most similar chunks via FAISS."""
+    query_vec = embedder.encode([question], convert_to_numpy=True).astype("float32")
+    faiss.normalize_L2(query_vec)
 
-    question = input("Ask a question (type 'exit' to stop): ")
+    distances, indices = index.search(query_vec, top_k)
+
+    retrieved = []
+    for idx in indices[0]:
+        if 0 <= idx < len(all_chunks):
+            retrieved.append(all_chunks[idx])
+
+    return "\n\n".join(retrieved) if retrieved else "No relevant information found."
+
+# ----------------------------------------
+# 5. Question loop
+# ----------------------------------------
+while True:
+    question = input("Ask a skincare question (type 'exit' to stop): ").strip()
 
     if question.lower() == "exit":
         break
 
-    # -------------------------------
-    # 4. KEYWORD-BASED RETRIEVAL (FIXED)
-    # -------------------------------
-    stopwords = ["which", "is", "for", "the", "a", "an", "are", "of"]
+    if not question:
+        continue
 
-    keywords = [w for w in question.lower().split() if w not in stopwords]
+    # --- Retrieve context ---
+    context = retrieve(question)
 
-    if not keywords:
-        keywords = question.lower().split()
+    # --- Build prompt ---
+    prompt = f"""You are a skincare expert assistant specializing in sunscreen and skincare products.
+Use the context below (from product reviews and skincare knowledge) to give an accurate, helpful answer.
+If the context doesn't fully answer the question, use your general skincare knowledge to help.
 
-    query = " OR ".join(["cleaned_text LIKE ?" for _ in keywords])
-    values = [f"%{word}%" for word in keywords]
+Context:
+{context}
 
-    sql = f"""
-    SELECT cleaned_text 
-    FROM sunscreen_reviews
-    WHERE {query}
-    LIMIT 3
-    """
+Question: {question}
 
-    cur.execute(sql, values)
-    rows = cur.fetchall()
+Answer:"""
 
-    if not rows:
-        context = "No relevant reviews found."
-    else:
-        context = "\n".join([r[0] for r in rows])
-
-    # -------------------------------
-    # 5. PROMPT (CLEANED)
-    # -------------------------------
-    prompt = f"""
-    Use the context below to answer.
-
-    Context:
-    {context}
-
-    Question: {question}
-
-    Answer:
-    """
-
-    # -------------------------------
-    # 6. GENERATE RESPONSE (FASTER)
-    # -------------------------------
-    result = llm(prompt, max_new_tokens=50)
-
+    # --- Generate response ---
+    result = llm(prompt, max_new_tokens=MAX_NEW_TOKENS, do_sample=False)
     answer = result[0]["generated_text"]
 
-    print("\nRAG Answer:")
+    print("\n--- Skincare Expert Answer ---")
     print(answer.split("Answer:")[-1].strip())
-    print("\n-----------------------------\n")
-
-# -------------------------------
-# 7. Close DB
-# -------------------------------
-conn.close()
+    print("------------------------------\n")
