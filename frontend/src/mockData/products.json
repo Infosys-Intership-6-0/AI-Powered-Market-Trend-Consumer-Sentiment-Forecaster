@@ -1,0 +1,206 @@
+[
+  {
+    "id": "prod_1",
+    "name": "Neutrogena",
+    "fullName": "Neutrogena Ultra Sheer Dry-Touch Sunscreen",
+    "category": "Sunscreen",
+    "color": "#0ea5e9",
+    "platform_breakdown": {
+      "twitter": 30,
+      "reddit": 35,
+      "news": 10,
+      "reviews": 25
+    },
+    "current_sentiment": 74,
+    "sentiment_breakdown": {
+      "positive": 65,
+      "neutral": 20,
+      "negative": 15
+    },
+    "growth": 3.2,
+    "mentions_vol": 9800,
+    "daily_data": [
+      {
+        "date": "10/01",
+        "sentiment": 65
+      },
+      {
+        "date": "10/02",
+        "sentiment": 68
+      },
+      {
+        "date": "10/03",
+        "sentiment": 70
+      },
+      {
+        "date": "10/04",
+        "sentiment": 69
+      },
+      {
+        "date": "10/05",
+        "sentiment": 72
+      },
+      {
+        "date": "10/06",
+        "sentiment": 76
+      },
+      {
+        "date": "10/07",
+        "sentiment": 74
+      }
+    ]
+  },
+  {
+    "id": "prod_2",
+    "name": "La Roche-Posay",
+    "fullName": "La Roche-Posay Anthelios Melt-in Milk Sunscreen",
+    "category": "Sunscreen",
+    "color": "#a855f7",
+    "platform_breakdown": {
+      "twitter": 25,
+      "reddit": 40,
+      "news": 15,
+      "reviews": 20
+    },
+    "current_sentiment": 91,
+    "sentiment_breakdown": {
+      "positive": 85,
+      "neutral": 10,
+      "negative": 5
+    },
+    "growth": 8.7,
+    "mentions_vol": 11200,
+    "daily_data": [
+      {
+        "date": "10/01",
+        "sentiment": 82
+      },
+      {
+        "date": "10/02",
+        "sentiment": 84
+      },
+      {
+        "date": "10/03",
+        "sentiment": 85
+      },
+      {
+        "date": "10/04",
+        "sentiment": 88
+      },
+      {
+        "date": "10/05",
+        "sentiment": 89
+      },
+      {
+        "date": "10/06",
+        "sentiment": 90
+      },
+      {
+        "date": "10/07",
+        "sentiment": 91
+      }
+    ]
+  },
+  {
+    "id": "prod_3",
+    "name": "CeraVe",
+    "fullName": "CeraVe Hydrating Mineral Sunscreen SPF 50",
+    "category": "Sunscreen",
+    "color": "#10b981",
+    "platform_breakdown": {
+      "twitter": 20,
+      "reddit": 30,
+      "news": 12,
+      "reviews": 38
+    },
+    "current_sentiment": 79,
+    "sentiment_breakdown": {
+      "positive": 70,
+      "neutral": 20,
+      "negative": 10
+    },
+    "growth": -1.5,
+    "mentions_vol": 4300,
+    "daily_data": [
+      {
+        "date": "10/01",
+        "sentiment": 85
+      },
+      {
+        "date": "10/02",
+        "sentiment": 83
+      },
+      {
+        "date": "10/03",
+        "sentiment": 82
+      },
+      {
+        "date": "10/04",
+        "sentiment": 80
+      },
+      {
+        "date": "10/05",
+        "sentiment": 81
+      },
+      {
+        "date": "10/06",
+        "sentiment": 78
+      },
+      {
+        "date": "10/07",
+        "sentiment": 79
+      }
+    ]
+  },
+  {
+    "id": "prod_4",
+    "name": "Supergoop!",
+    "fullName": "Supergoop! Unseen Sunscreen SPF 40",
+    "category": "Sunscreen",
+    "color": "#f59e0b",
+    "platform_breakdown": {
+      "twitter": 35,
+      "reddit": 38,
+      "news": 5,
+      "reviews": 22
+    },
+    "current_sentiment": 85,
+    "sentiment_breakdown": {
+      "positive": 80,
+      "neutral": 15,
+      "negative": 5
+    },
+    "growth": 15.3,
+    "mentions_vol": 7600,
+    "daily_data": [
+      {
+        "date": "10/01",
+        "sentiment": 55
+      },
+      {
+        "date": "10/02",
+        "sentiment": 60
+      },
+      {
+        "date": "10/03",
+        "sentiment": 68
+      },
+      {
+        "date": "10/04",
+        "sentiment": 74
+      },
+      {
+        "date": "10/05",
+        "sentiment": 79
+      },
+      {
+        "date": "10/06",
+        "sentiment": 83
+      },
+      {
+        "date": "10/07",
+        "sentiment": 85
+      }
+    ]
+  }
+]

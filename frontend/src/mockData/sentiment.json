@@ -1,0 +1,122 @@
+{
+    "prod_1": [
+        {
+            "date": "2024-02-01",
+            "sentiment": 60
+        },
+        {
+            "date": "2024-02-02",
+            "sentiment": 65
+        },
+        {
+            "date": "2024-02-03",
+            "sentiment": 74
+        },
+        {
+            "date": "2024-02-04",
+            "sentiment": 80
+        },
+        {
+            "date": "2024-02-05",
+            "sentiment": 72
+        },
+        {
+            "date": "2024-02-06",
+            "sentiment": 75
+        },
+        {
+            "date": "2024-02-07",
+            "sentiment": 70
+        }
+    ],
+    "prod_2": [
+        {
+            "date": "2024-02-01",
+            "sentiment": 85
+        },
+        {
+            "date": "2024-02-02",
+            "sentiment": 88
+        },
+        {
+            "date": "2024-02-03",
+            "sentiment": 87
+        },
+        {
+            "date": "2024-02-04",
+            "sentiment": 90
+        },
+        {
+            "date": "2024-02-05",
+            "sentiment": 92
+        },
+        {
+            "date": "2024-02-06",
+            "sentiment": 91
+        },
+        {
+            "date": "2024-02-07",
+            "sentiment": 93
+        }
+    ],
+    "prod_3": [
+        {
+            "date": "2024-02-01",
+            "sentiment": 82
+        },
+        {
+            "date": "2024-02-02",
+            "sentiment": 80
+        },
+        {
+            "date": "2024-02-03",
+            "sentiment": 78
+        },
+        {
+            "date": "2024-02-04",
+            "sentiment": 75
+        },
+        {
+            "date": "2024-02-05",
+            "sentiment": 72
+        },
+        {
+            "date": "2024-02-06",
+            "sentiment": 70
+        },
+        {
+            "date": "2024-02-07",
+            "sentiment": 68
+        }
+    ],
+    "prod_4": [
+        {
+            "date": "2024-02-01",
+            "sentiment": 65
+        },
+        {
+            "date": "2024-02-02",
+            "sentiment": 70
+        },
+        {
+            "date": "2024-02-03",
+            "sentiment": 68
+        },
+        {
+            "date": "2024-02-04",
+            "sentiment": 75
+        },
+        {
+            "date": "2024-02-05",
+            "sentiment": 80
+        },
+        {
+            "date": "2024-02-06",
+            "sentiment": 85
+        },
+        {
+            "date": "2024-02-07",
+            "sentiment": 88
+        }
+    ]
+}
