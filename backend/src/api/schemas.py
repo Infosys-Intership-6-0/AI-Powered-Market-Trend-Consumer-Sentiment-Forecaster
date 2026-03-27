@@ -377,11 +377,11 @@ class RAGAskRequest(BaseModel):
 
 
 class RAGRetrievedItem(BaseModel):
-    review_id: str
-    product: str
-    product_name: str
-    date: str
-    sentiment_label: str
+    review_id: str | None = None
+    product: str | None = None
+    product_name: str | None = None
+    date: str | None = None
+    sentiment_label: str | None = None
     score: float
     snippet: str
 

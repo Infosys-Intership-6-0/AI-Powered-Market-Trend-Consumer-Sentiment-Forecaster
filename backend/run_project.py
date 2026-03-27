@@ -57,6 +57,18 @@ def main():
     root = Path(__file__).parent
     frontend_dir = root.parent / "frontend"
 
+    # Load backend/.env into the OS environment so all child processes inherit
+    env_file = root / ".env"
+    if env_file.exists():
+        print(f"Loading environment from {env_file}")
+        with open(env_file) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                os.environ.setdefault(key.strip(), value.strip())
+
     backend_host = os.environ.get("BACKEND_HOST", "127.0.0.1")
     requested_backend_port = int(os.environ.get("BACKEND_PORT", "8002"))
     backend_port = _pick_available_port(backend_host, requested_backend_port)

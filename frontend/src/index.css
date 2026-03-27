@@ -43,3 +43,59 @@
 .btn-secondary {
   @apply bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors px-4 py-2 rounded-lg font-medium;
 }
+
+/* ── Chatbot Markdown Rendering ── */
+.prose.prose-sm h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.prose.prose-sm h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.prose.prose-sm p {
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose.prose-sm ol,
+.prose.prose-sm ul {
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1.25rem;
+}
+
+.prose.prose-sm li {
+  margin-top: 0.15rem;
+  margin-bottom: 0.15rem;
+}
+
+.prose.prose-sm strong {
+  font-weight: 700;
+}
+
+.dark .prose-invert h2,
+.dark .prose-invert h3 {
+  color: #e4e4e7;
+}
+
+.dark .prose-invert strong {
+  color: #c4b5fd;
+}
+
+.prose.prose-sm em {
+  opacity: 0.85;
+  font-style: italic;
+}
+
+.prose.prose-sm hr {
+  margin: 0.75rem 0;
+  border-color: rgba(148, 163, 184, 0.2);
+}
