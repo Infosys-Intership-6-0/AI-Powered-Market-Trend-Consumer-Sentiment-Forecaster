@@ -9,7 +9,7 @@ services:
     
     envVars:
       - key: PYTHONPATH
-        value: /app/backend:/app
+        value: /opt/render/project/backend/src:/opt/render/project/backend:/opt/render/project
       - key: PYTHON_VERSION
         value: 3.12
       - key: APP_ENV
