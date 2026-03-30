@@ -13,7 +13,7 @@ COPY backend/src ./src
 COPY backend/run_project.py ./
 COPY README.md ./
 
-EXPOSE 8002
+EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}"]
 

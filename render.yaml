@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: market-trend-api
+    env: python
+    runtime: python-3.12
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd backend && python -m uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+    
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        fromDatabase:
+          name: market-trend-pg
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: market-trend-redis
+          property: connectionString
+      - key: INGESTION_SCHEDULER_ENABLED
+        value: "1"
+      - key: HF_LOCAL_FILES_ONLY
+        value: "1"
+      - key: OTEL_ENABLED
+        value: "0"
+      - key: CORS_ORIGINS
+        value: https://your-frontend.vercel.app
+
+databases:
+  - name: market-trend-pg
+    engine: postgres
+    version: 16
+    plan: starter
+    
+  - name: market-trend-redis
+    engine: redis
+    plan: starter
