@@ -22,7 +22,7 @@ Enterprise-ready full-stack project with:
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 # For fully pinned (reproducible) installs, use:
 # pip install -r requirements.lock.txt
 # Optional: set DATABASE_URL for PostgreSQL
