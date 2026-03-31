@@ -7,6 +7,11 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python -m uvicorn backend.src.api.main:app --host 0.0.0.0 --port $PORT
     
+    disk:
+      name: sqlite-data
+      mountPath: /opt/render/project/backend/data
+      sizeGB: 1
+
     envVars:
       - key: PYTHONPATH
         value: /opt/render/project/backend/src:/opt/render/project/backend:/opt/render/project
@@ -16,14 +21,6 @@ services:
         value: production
       - key: LOG_LEVEL
         value: INFO
-      - key: DATABASE_URL
-        fromDatabase:
-          name: market-trend-pg
-          property: connectionString
-      - key: REDIS_URL
-        fromDatabase:
-          name: market-trend-redis
-          property: connectionString
       - key: INGESTION_SCHEDULER_ENABLED
         value: "1"
       - key: HF_LOCAL_FILES_ONLY
@@ -31,14 +28,4 @@ services:
       - key: OTEL_ENABLED
         value: "0"
       - key: CORS_ORIGINS
-        value: https://your-frontend.vercel.app
-
-databases:
-  - name: market-trend-pg
-    engine: postgres
-    version: 16
-    plan: starter
-    
-  - name: market-trend-redis
-    engine: redis
-    plan: starter
+        value: https://trendanalyserai.vercel.app
