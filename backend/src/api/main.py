@@ -158,21 +158,26 @@ async def lifespan(_: FastAPI):
     ensure_database()
     create_default_admin_user()
     initialize_datasets(force_refresh=True)
-    evaluate_model_quality(model_name="nlp_baseline")
-    run_drift_detection(model_name="nlp_baseline")
     start_ingestion_scheduler()
     start_job_worker()
-    # Pre-build FAISS index in a background thread so the server stays responsive
-    import threading
-    def _warmup_rag():
-        try:
-            from src.rag.engine import _get_faiss_engine
-            logger.info("Pre-building RAG FAISS index in background...")
-            _get_faiss_engine()
-            logger.info("RAG FAISS index ready.")
-        except Exception as e:
-            logger.warning("RAG warmup failed (non-fatal): %s", e)
-    threading.Thread(target=_warmup_rag, daemon=True).start()
+    
+    if os.environ.get("DISABLE_HEAVY_STARTUP") != "1":
+        evaluate_model_quality(model_name="nlp_baseline")
+        run_drift_detection(model_name="nlp_baseline")
+        # Pre-build FAISS index in a background thread so the server stays responsive
+        import threading
+        def _warmup_rag():
+            try:
+                from src.rag.engine import _get_faiss_engine
+                logger.info("Pre-building RAG FAISS index in background...")
+                _get_faiss_engine()
+                logger.info("RAG FAISS index ready.")
+            except Exception as e:
+                logger.warning("RAG warmup failed (non-fatal): %s", e)
+        threading.Thread(target=_warmup_rag, daemon=True).start()
+    else:
+        logger.info("DISABLE_HEAVY_STARTUP=1 detected. Skipping heavy ML model pre-loading.")
+        
     yield
 
 

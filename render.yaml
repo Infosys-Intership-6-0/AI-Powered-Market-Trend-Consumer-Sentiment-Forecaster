@@ -26,5 +26,9 @@ services:
         value: "1"
       - key: OTEL_ENABLED
         value: "0"
+      - key: DISABLE_HEAVY_STARTUP
+        value: "1"
+      - key: MALLOC_ARENA_MAX
+        value: "2"
       - key: CORS_ORIGINS
         value: https://trendanalyserai.vercel.app
