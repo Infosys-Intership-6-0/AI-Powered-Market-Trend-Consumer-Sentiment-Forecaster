@@ -157,7 +157,7 @@ SENTRY_ENABLED = setup_sentry()
 async def lifespan(_: FastAPI):
     ensure_database()
     create_default_admin_user()
-    initialize_datasets(force_refresh=True)
+    initialize_datasets(force_refresh=False)
     start_ingestion_scheduler()
     start_job_worker()
     
